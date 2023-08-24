@@ -6,6 +6,8 @@ const cartManager = new CartManager(path.join(__dirname, '../Routes/cart.json'))
 
 const cartRouter = Router()
 
+const carts = []
+
 //El MIDDLEWARE acá esta a nivel Router
 cartRouter.use((req, res, next) => {
     console.log('Middleware Router carts');
@@ -88,11 +90,8 @@ cartRouter.post('/', (req, res) => {
 	const data = req.body
 
 	const newCart = cartManager.addcart(data);
-	if (typeof newCart === 'string') {
-        return res.status(400).json({ error: newCart });
-    }
 
-	return res.status(201).json(data)
+	return res.status(201).json(newCart)
 })
 
 

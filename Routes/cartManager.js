@@ -6,33 +6,52 @@ class cartManager  {
         this.path = path
     }
 
-    addcart (data) {
-        if (!data.id || !data.quantity) {
-            return "Error: Faltan completar campos"
-          }
-
-          const existcart = this.carts.findIndex((cart) => cart.id === data.id)
-          if (existcart !== -1) {
-            console.log("El codigo de carto esta en uso") 
-            return "Error: El codigo esta en uso."
-          }    
-
-          const cart = {
-            id: data.id,
-            quantity: data.quantity,
+ addcart(data) {
+        if (!data.quantity) {
+            return "Error: Faltan completar campos";
         }
-        this.carts.push(cart);
 
-        const cartString = JSON.stringify(this.carts, null, 2)
-        fs.promises.writeFile(this.path, cartString, (err) => {
-            if (err) {
-                console.log("No se pudo guardar los prodroductos")
-            } else {
-                console.log("Satisfactorio")
-            }
-        });
+        const existcart = this.carts.findIndex((cart) => cart.id === data.id);
+        if (existcart !== -1) {
+            console.log("El código de carrito está en uso");
+            return "Error: El código está en uso.";
+        }
 
-        return cart;
+        const newCart = {
+            id: this.carts.length + 1,
+            quantity: data.quantity,
+        };
+    
+        // Cargar los cartos existentes desde el archivo
+        fs.promises.readFile(this.path, 'utf-8')
+            .then((cartString) => {
+                const carts = JSON.parse(cartString);
+    
+                // Agregar el nuevo carto
+                carts.push(newCart);
+    
+                // Escribir la lista completa de cartos al archivo
+                const cartsString = JSON.stringify(carts, null, 2);
+                return fs.promises.writeFile(this.path, cartsString);
+            })
+            .then(() => {
+                console.log("cart agregado satisfactoriamente");
+            })
+            .catch((err) => {
+                console.log("Error al agregar el cart:", err);
+            });
+    
+        return newCart;
+    }
+
+    async saveCarts() {
+        try {
+            const cartString = JSON.stringify(this.carts, null, 2);
+            await fs.promises.writeFile(this.path, cartString); // Usamos writeFile en lugar de appendFile
+            console.log("Carritos guardados correctamente");
+        } catch (error) {
+            console.error("No se pudieron guardar los carritos:", error);
+        }
     }
 
     getcart () {

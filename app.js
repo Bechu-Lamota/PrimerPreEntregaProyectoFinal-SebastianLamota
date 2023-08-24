@@ -16,8 +16,8 @@ app.use(express.static('public'))
     return next();
 })
 
-app.use('/api/products', productRouter)
-app.use('/api/carts', cartRouter)
+app.use('/api/products', productRouter)//work
+app.use('/api/carts', cartRouter)//work
   
 
 app.listen(8080, () => {

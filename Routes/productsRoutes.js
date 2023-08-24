@@ -6,6 +6,8 @@ const productManager = new ProductManager(path.join(__dirname, '../Routes/produc
 
 const productRouter = Router()
 
+const products = []
+
 //Disponibilizo los recursos
 productRouter.get('/', (req, res, next) => {
 	console.log('MIDDLEWARE CONTROL GET')
@@ -41,59 +43,75 @@ productRouter.get('/:pid', async (req, res) => {
     }
   })
 
+//Tengo un problema el método post me carga un producto nuevo, PERO no me respeta los id. Estoy seguro que es por el productManager.js que arranca con this.products = [] entonces cuando aplica .length+1 arranca de []+1 y id queda igual a 1 SIEMPRE, pero no logro corregirlo...
 productRouter.post('/', (req, res) => {
-	const { title, description, code, price, stock, category, thumbnails } = req.body;
+  const data = req.body;
 
-	if (!title || !description || !code || !price || !stock || !category) {
+  if (!data.title || !data.description || !data.code || !data.price || !data.stock) {
+    return res.status(400).json({ error: 'Faltan datos por completar' });
+  }
+
+  const newProduct = productManager.addProduct(data);
+
+  data.id = products.length + 1
+
+  products.push(data)
+
+  return res.status(201).json(newProduct)
+  /*
+  //No logro hacerlo funcionar... ¿debo borrar el addProduct de productManager.js?
+	const { title, description, code, price, stock, thumbnail } = req.body;
+
+	if (!title || !description || !code || !price || !stock ) {
 	  return res.status(400).json({ error: 'Missing required fields' });
 	}
   
-    const newProduct = {
-        id: String(products.length + 1), // Convertir el id a string
-        title: title, // Asignar las variables
-        description: description,
-        code: code,
-        price: Number(price), // Convertir el precio a número
-        status: true,
-        stock: Number(stock), // Convertir el stock a número
-        category: category,
-        thumbnails: thumbnails ? Array(thumbnails) : [], // Si se proporciona thumbnails, convertirlo a un array, de lo contrario, usar un array vacío
+    const data = {
+      id: products.length + 1,
+      title: title, // Asignar las variables
+      description: description,
+      code: code,
+      price: Number(price), // Convertir el precio a número
+      status: true,
+      stock: Number(stock), // Convertir el stock a número
+      thumbnail: thumbnail ? Array(thumbnail) : [], // Si se proporciona thumbnails, convertirlo a un array, de lo contrario, usar un array vacío
     };
 
-	products.push(newProduct)
+    const newProduct = productManager.addProduct(data)
 
 	return res.status(201).json(newProduct)
+*/
 })
+
 
 productRouter.put('/:pid', (req, res) => {
-	const data = req.body
-	const pid = parseInt(req.params.pid)
+  const data = req.body;
+  const pid = parseInt(req.params.pid);
 
-	const product = products.find(product => product.id === pid)
-	if (!product) {
-		return res.status(404).json({
-			error: 'Product not found'
-		})
-	}
+  const updatedProduct = productManager.updateProduct(pid, data);
 
-	product.nombre = data.nombre || product.nombre
-	product.apellido = data.apellido || product.apellido
-	product.genero = data.genero || product.genero
+  if (!updatedProduct) {
+      return res.status(404).json({
+          error: 'Product not found'
+      });
+  }
 
-	return res.json(product)
-})
+  return res.json({
+      message: 'Producto Actualizado'
+  });
+});
 
 productRouter.delete('/:pid', (req, res) => {
 	const pid = parseInt(req.params.pid)
 
-	const productIndex = products.findIndex(product => product.id === pid)
-	if (productIndex === -1) {
-		return res.status(404).json({
-			error: 'Product not found'
-		})
-	}
+  const deleted = productManager.deleteProduct(pid);
 
-	products.splice(productIndex, 1)
+  if (!deleted) {
+      return res.status(404).json({
+          error: 'Product not found'
+      });
+  }
+
 	return res.status(204).json({})
 })
 

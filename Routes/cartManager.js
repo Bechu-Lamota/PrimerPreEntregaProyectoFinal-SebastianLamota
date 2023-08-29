@@ -20,7 +20,7 @@ class cartManager  {
 
         const newCart = {
             id: carts.length + 1,
-            quantity: data.quantity,
+            products: []
         };
 
         carts.push(newCart); // Agregar el nuevo carto

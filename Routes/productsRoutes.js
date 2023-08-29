@@ -32,9 +32,7 @@ productRouter.get('/:pid', async (req, res) => {
         const mejorVista = JSON.stringify(product, null, 2);
         res.type('json').send(mejorVista);
         } else if (!product) {
-         return res.status(404).json({
-            error: 'Product not found'
-         })
+         return res.status(404).json({ error: 'Product not found' })
         }
     } catch (e) { res.json(e) }
   })
@@ -72,9 +70,7 @@ productRouter.delete('/:pid', (req, res) => {
   const deleted = productManager.deleteProduct(pid);
 
   if (!deleted) {
-      return res.status(404).json({
-          error: 'Product not found'
-      });
+      return res.status(404).json({ error: 'Product not found' });
   }
 
 	return res.status(204).json({})

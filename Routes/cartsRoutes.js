@@ -18,7 +18,7 @@ cartRouter.get('/', async (req, res) => {
     try {
         const limit = parseInt(req.params.limit)
 
-        const carts = await cartManager.getcart();
+        const carts = await cartManager.getCart();
         const mejorVista = limit ? carts.slice(0, limit) : carts;
         res.json(mejorVista);
     } catch (error) {
@@ -44,7 +44,6 @@ cartRouter.get('/:cid', async (req, res) => {
 
 cartRouter.post('/:cid/product/:pid', async (req, res) => {
     const { cid, pid } = req.params;
-    const quantity = req.body.quantity;
 
     try {
         const cartId = parseInt(cid);
@@ -67,11 +66,10 @@ cartRouter.post('/:cid/product/:pid', async (req, res) => {
         // Agregar el producto con la cantidad al carrito
         cart.products.push({
             id: productId,
-            quantity: quantity,
         });
 
         // Actualizar el carrito en el archivo JSON
-        await cartManager.updatecart(cartId, { products: cart.products });
+        await cartManager.updateCart(cartId, { products: cart.products });
 
         return res.status(201).json(cart);
     } catch (error) {
@@ -84,7 +82,7 @@ cartRouter.post('/:cid/product/:pid', async (req, res) => {
 cartRouter.post('/', (req, res) => {
 	const data = req.body
 
-	const newCart = cartManager.addcart(data);
+	const newCart = cartManager.addCart(data);
 
 	return res.status(201).json(newCart)
 })

@@ -6,48 +6,45 @@ class ProductManager  {
         this.path = path
     }
 
-    addProduct (data) {
+    addProduct = async (data) => {
         if (!data.title || !data.description || !data.price || !data.thumbnail || !data.code || !data.stock) {
-            return "Error: Faltan completar campos"
-          }
-
-          const existProduct = this.products.find((product) => product.code === data.code)
-          if (existProduct) {
-            console.log("El codigo de producto esta en uso") 
-            return "Error: El codigo esta en uso."
-          }    
-
-          const newProduct = {
-            id: this.products.length + 1,
+            return "Error: Faltan completar campos";
+        }
+    
+        const existProduct = this.products.find((product) => product.code === data.code);
+        if (existProduct) {
+            console.log("El codigo de producto está en uso");
+            return "Error: El codigo está en uso.";
+        }
+    
+        const products = await this.getProduct();
+        const newProduct = {
+            id: products.length + 1,
             title: data.title,
             description: data.description,
             price: data.price,
             thumbnail: data.thumbnail,
             code: data.code,
-            stock: data.stock
+            stock: data.stock,
         };
+        
+        products.push(newProduct);
+
+        try {
+            const productoAgregado = JSON.stringify(products, null, 2);
     
-        // Cargar los productos existentes desde el archivo
-        fs.promises.readFile(this.path, 'utf-8')
-            .then((productString) => {
-                const products = JSON.parse(productString);
-    
-                // Agregar el nuevo producto
-                products.push(newProduct);
-    
-                // Escribir la lista completa de productos al archivo
-                const productoString = JSON.stringify(products, null, 2);
-                return fs.promises.writeFile(this.path, productoString);
-            })
-            .then(() => {
-                console.log("Producto agregado satisfactoriamente");
-            })
-            .catch((err) => {
-                console.log("Error al agregar el producto:", err);
-            });
+            await fs.promises.writeFile(this.path, productoAgregado, 'utf-8');
+            console.log("Producto agregado satisfactoriamente");
+        } catch (err) {
+            console.log("Error al agregar el producto:", err);
+        }
     
         return newProduct;
     }
+    
+    
+    
+    
 
     getProduct () {
         return fs.promises.readFile(this.path, 'utf-8')

@@ -6,8 +6,6 @@ const cartManager = new CartManager(path.join(__dirname, '../Routes/cart.json'))
 
 const cartRouter = Router()
 
-const carts = []
-
 //El MIDDLEWARE acá esta a nivel Router
 cartRouter.use((req, res, next) => {
     console.log('Middleware Router carts');
@@ -17,15 +15,13 @@ cartRouter.use((req, res, next) => {
 
 //Disponibilizo los recursos
 cartRouter.get('/', async (req, res) => {
-	const cart = parseInt(req.params.cid)
+	const limit = parseInt(req.params.limit)
     try {
-        const carts = await cartManager.getcart(cart);
-        const mejorVista = JSON.stringify(carts, null, 2);
-        res.type('json').send(mejorVista);
+        const carts = await cartManager.getcart();
+        const mejorVista = limit ? carts.slice(0, limit) : JSON.stringify(carts, null, 2);
+        res.json(mejorVista);
     } catch (error) {
-        return res.status(500).json({
-            error: 'Internal server error',
-        });
+        return res.status(500).json({ error: 'Internal server error'});
     }
 });
 

@@ -44,11 +44,9 @@ cartRouter.get('/:cid', async (req, res) => {
 
 cartRouter.post('/:cid/product/:pid', async (req, res) => {
     const { cid, pid } = req.params;
-
     try {
         const cartId = parseInt(cid);
         const productId = parseInt(pid);
-
         const cart = await cartManager.getcartById(cartId);
         if (!cart) {
             return res.status(404).json({
@@ -56,7 +54,7 @@ cartRouter.post('/:cid/product/:pid', async (req, res) => {
             });
         }
 
-        const existingProduct = cart.products.find((p) => p.id === productId);
+        const existingProduct = cart.find((p) => p.id === productId);
         if (existingProduct) {
             return res.status(400).json({
                 error: 'Product already in cart',

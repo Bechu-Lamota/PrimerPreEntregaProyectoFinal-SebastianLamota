@@ -15,10 +15,11 @@ cartRouter.use((req, res, next) => {
 
 //Disponibilizo los recursos
 cartRouter.get('/', async (req, res) => {
-	const limit = parseInt(req.params.limit)
     try {
+        const limit = parseInt(req.params.limit)
+
         const carts = await cartManager.getcart();
-        const mejorVista = limit ? carts.slice(0, limit) : JSON.stringify(carts, null, 2);
+        const mejorVista = limit ? carts.slice(0, limit) : carts;
         res.json(mejorVista);
     } catch (error) {
         return res.status(500).json({ error: 'Internal server error'});
@@ -38,9 +39,7 @@ cartRouter.get('/:cid', async (req, res) => {
             error: 'Product not found'
          })
         }
-    } catch (e) { 
-        res.json(e)
-    }
+    } catch (e) { res.json(e) }
   })
 
 cartRouter.post('/:cid/product/:pid', async (req, res) => {

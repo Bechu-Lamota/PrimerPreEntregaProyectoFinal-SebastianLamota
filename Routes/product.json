@@ -39,18 +39,18 @@
     "id": 5,
     "title": "prueba5",
     "description": "Este es un producto prueba5",
-    "price": 100,
+    "price": 2,
     "thumbnail": "Sin imagen",
     "code": "ñlsadjw",
-    "stock": 1
+    "stock": 300
   },
   {
     "id": 6,
     "title": "prueba6",
     "description": "Este es un producto prueba6",
-    "price": 10,
+    "price": 200,
     "thumbnail": "Sin imagen",
-    "code": "ñlsadjw",
-    "stock": 1000
+    "code": "ñaa.wsdñ",
+    "stock": 3
   }
 ]

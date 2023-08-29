@@ -27,7 +27,7 @@ class ProductManager  {
             code: data.code,
             stock: data.stock,
         };
-        
+
         products.push(newProduct);
 
         try {
@@ -41,10 +41,7 @@ class ProductManager  {
     
         return newProduct;
     }
-    
-    
-    
-    
+    //Lo corregí
 
     getProduct () {
         return fs.promises.readFile(this.path, 'utf-8')
@@ -73,24 +70,56 @@ class ProductManager  {
           })
       }
 
-    updateProduct (id, actualizacion) {
-        const index = this.products.findIndex((product) => product.id === id);
-        if (index === -1) {
-            console.log("Producto no encontrado");
-            return "Error: Producto no actualizado"
-        }
 
-        this.products[index] = {...this.products[index], ...actualizacion};
-        const productoActualizado = JSON.stringify(this.products, null, 2);
+    updateProduct = async (id, actualizacion) => {
+        try {
+            const products = await this.getProduct();
+            const productIndex = products.findIndex(product => product.id === id);
 
-        fs.writeFile(this.path, productoActualizado, 'utf-8', (err) => {
-            if (err) {
-                console.log("No se pudo actualizar el producto");
-            } else {
-                console.log("Producto actualizado correctamente");
+            if (productIndex === -1) {
+                console.log("Producto no encontrado");
+                return;
             }
-        });
+
+            products[productIndex] = {...products[productIndex], ...actualizacion};
+
+            await this.writeProductsToFile(products); // Llamada a writeProductsToFile
+
+            console.log("Producto actualizado correctamente");
+        } catch (err) {
+            console.log("Error al actualizar el producto:", err);
+        }
     }
+
+    async writeProductsToFile(products) {
+        try {
+            const productoString = JSON.stringify(products, null, 2);
+            await fs.promises.writeFile(this.path, productoString);
+        } catch (err) {
+            throw err;
+        } 
+    
+        /*
+    const index = this.products.findIndex((product) => product.id === id);
+    if (index === -1) {
+        console.log("Producto no encontrado");
+        return "Error: Producto no actualizado";
+    }
+
+    this.products[index] = { ...this.products[index], ...actualizacion };
+    const productoActualizado = JSON.stringify(this.products, null, 2);
+
+    try {
+        await fs.promises.writeFile(this.path, productoActualizado, 'utf-8');
+        console.log("Producto actualizado correctamente");
+        return this.products[index]; // Retorna el producto actualizado
+    } catch (err) {
+        console.log("No se pudo actualizar el producto");
+        throw err;
+    }
+    */
+}
+
 
 deleteProduct(id) {
         const index = this.products.findIndex((product) => product.id === id);

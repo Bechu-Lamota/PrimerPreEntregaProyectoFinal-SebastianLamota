@@ -52,22 +52,19 @@ productRouter.post('/', async (req, res) => {
 })
 
 
-productRouter.put('/:pid', (req, res) => {
+productRouter.put('/:pid', async (req, res) => {
   const data = req.body;
   const pid = parseInt(req.params.pid);
 
-  const updatedProduct = productManager.updateProduct(pid, data);
+  try {
+      await productManager.updateProduct(pid, data);
 
-  if (!updatedProduct) {
-      return res.status(404).json({
-          error: 'Product not found'
-      });
+      return res.json({ message: 'Producto Actualizado' });
+  } catch (error) {
+      return res.status(404).json({ error: 'Product not found' });
   }
-
-  return res.json({
-      message: 'Producto Actualizado'
-  });
 });
+
 
 productRouter.delete('/:pid', (req, res) => {
 	const pid = parseInt(req.params.pid)

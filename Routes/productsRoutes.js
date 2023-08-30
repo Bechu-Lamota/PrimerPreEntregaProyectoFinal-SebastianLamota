@@ -37,7 +37,6 @@ productRouter.get('/:pid', async (req, res) => {
     } catch (e) { res.json(e) }
   })
 
-//Tengo un problema el método post me carga un producto nuevo, PERO no me respeta los id. Estoy seguro que es por el productManager.js que arranca con this.products = [] entonces cuando aplica .length+1 arranca de []+1 y id queda igual a 1 SIEMPRE, pero no logro corregirlo...
 productRouter.post('/', async (req, res) => {
   const data = req.body;
 

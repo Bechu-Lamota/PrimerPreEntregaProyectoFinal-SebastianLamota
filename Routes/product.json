@@ -52,5 +52,14 @@
     "thumbnail": "Sin imagen",
     "code": "ñaa.wsdñ",
     "stock": 3
+  },
+  {
+    "id": 7,
+    "title": "prueba7",
+    "description": "Este es un producto prueba7",
+    "price": 1000,
+    "thumbnail": "Sin imagen",
+    "code": "AZRC",
+    "stock": 3
   }
 ]

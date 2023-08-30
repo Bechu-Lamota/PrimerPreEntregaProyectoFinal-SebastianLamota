@@ -6,8 +6,9 @@ class ProductManager  {
         this.path = path
     }
 
-    addProduct = async (data) => {
+    async addProduct (data) {
         const products = await this.getProduct();
+
         if (!data.title || !data.description || !data.price || !data.thumbnail || !data.code || !data.stock) {
             return "Error: Faltan completar campos";
         }
@@ -103,12 +104,11 @@ async deleteProduct(id) {
         if (index === -1) {
            return console.log("Producto no encontrado"); // Producto no encontrado
         }
-
         const eliminarProductos = products.splice(index, 1)[0];
 
         try {
             const productString = JSON.stringify(products, null, 2);
-            await fs.writeFile(this.path, productString); 
+            await fs.promises.writeFile(this.path, productString); 
             console.log("Producto eliminado correctamente");
         } catch (error) {
             console.log("No se pudo eliminar el producto", error);

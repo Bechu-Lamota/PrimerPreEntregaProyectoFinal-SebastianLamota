@@ -54,9 +54,8 @@ productRouter.put('/:pid', async (req, res) => {
   const pid = parseInt(req.params.pid);
 
   try {
-      await productManager.updateProduct(pid, data);
-
-      return res.json({ message: 'Producto Actualizado' });
+      const result = await productManager.updateProduct(pid, data);
+      return res.json({ message: result });
   } catch (error) {
       return res.status(404).json({ error: 'Product not found' });
   }

@@ -3,7 +3,7 @@ const fs = require('fs')
 const ProductManager  = require("./productManager")
 
 //No logro anexar el PRODUCTMANAGER A CARTMANAGER
-
+/*
 const products = async () => {
     const manager = new ProductManager("product.json");
     try {
@@ -15,7 +15,7 @@ const products = async () => {
         return [];
     }
 }
-
+*/
 
 class cartManager  {
     constructor (path) {
@@ -34,17 +34,14 @@ class cartManager  {
         }
     }
 
-      getCartById (id) {
-        return this.getCart()
-          .then((carts) => {
-            const cart = carts.find(cart => cart.id === id)
-
-            return cart
-          })
-          .catch(e => {
-            console.log('Error al obtener el carto')
-            return e
-          })
+    async getCartById (id) {
+        const carts = await this.getCart();
+        const existCart = carts.find(cart => cart.id === id);
+        if (!existCart) {
+            const error = 'Error al obtener el producto'
+            return error
+        }
+        return existCart
       }
 
 async addCart(data) {
@@ -53,7 +50,7 @@ async addCart(data) {
         console.log("Obteniendo carritos existentes:", carts);
 
         if (!data.product) { 
-            throw new Error("Error: Faltan completar campos"); //Acá me esta faltando otro else if que me agregue el array de data
+            throw new Error("Error: Faltan completar campos");
         }
 
         const existCart = carts.find((cart) => cart.id === data.id);
@@ -64,14 +61,7 @@ async addCart(data) {
         
         const newCart = {
             id: carts.length + 1,
-            product:{
-                title: data.title,
-                description: data.description,
-                price: data.price,
-                thumbnail: data.thumbnail,
-                code: data.code,
-                stock: data.stock
-            }
+            product:[]
         };
         carts.push(newCart);
 
@@ -87,39 +77,35 @@ async addCart(data) {
 }
 
 async updateCart(id, newData) {
-
     try {
-        const cartId = parseInt(req.params.cid);
-        const productId = parseInt(req.params.pid);
-
-        const cart = await cartManager.getCartById(cartId);
+        // Obtener el carrito por su ID
+        const cart = await this.getCartById(id);
         if (!cart) {
-            return res.status(404).json({ error: 'Cart not found' });
+            return { error: 'Cart not found' };
         }
 
-        //Verifico si existe el producto en el carrito
-        const existingProduct = cart.products.findIndex(p => p.product.id === productId);
+        const productId = newData.productId;
+        const quantity = newData.quantity;
+
+        // Verificar si existe el producto en el carrito
+        const existingProduct = cart.products.findIndex(p => p.productId === productId);
+
         if (existingProduct !== -1) {
-            //si existe, aumento la cantidad y actualizo el stock
-            cart.products[existingProduct].quantity += 1;
+            // Si el producto existe, aumentar la cantidad
+            cart.products[existingProduct].quantity += quantity;
         } else {
-        // Agregar el producto con la cantidad al carrito
-             cart.products.push({
-                product: {
-                     id: productId
-                        },
-                quantity: 1
-             });
+            // Agregar el producto al carrito
+            cart.products.push({
+                productId: productId,
+                quantity: quantity
+            });
         }
-    
-        // Actualizar el carrito en el archivo JSON
-        await cartManager.updateCart(cartId, { products: cart.products });
 
-        return res.status(201).json(cart);
+        return cart;
     } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
+        return { error: 'Internal server error' };
     }
-}
+    }
 }
 
 module.exports = cartManager

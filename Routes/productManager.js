@@ -58,17 +58,14 @@ class ProductManager  {
          }
         }
 
-      getProductById (id) {
-        return this.getProduct()
-          .then((products) => {
-            const product = products.find(product => product.id === id)
-
-            return product
-          })
-          .catch(e => {
-            console.log('Error al obtener el Producto')
-            return e
-          })
+    async getProductById (id) {
+        const products = await this.getProduct();
+        const existProduct = products.find(product => product.id === id);
+        if (!existProduct) {
+            const error = 'Error al obtener el producto'
+            return error
+        }
+        return existProduct
       }
 
 
@@ -77,12 +74,11 @@ class ProductManager  {
         try {
             const productIndex = products.findIndex(product => product.id === id);
             if (productIndex === -1) {
-                console.log("Producto no encontrado");
-                return;
+                return "Producto no encontrado";
             }
             products[productIndex] = {...products[productIndex], ...actualizacion};
             await this.writeProductsToFile(products); // Llamada a writeProductsToFile
-            console.log("Producto actualizado correctamente");
+            return "Producto actualizado correctamente";
         } catch (err) {
             console.log("Error al actualizar el producto:", err);
         }

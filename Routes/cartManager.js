@@ -44,36 +44,25 @@ class cartManager  {
         return existCart
       }
 
-async addCart(data) {
-        console.log("Iniciando addCart...");
-        const carts = await this.getCart();
-        console.log("Obteniendo carritos existentes:", carts);
+async addCart() {
+    const cart = await this.getCart();
 
-        if (!data.product) { 
-            throw new Error("Error: Faltan completar campos");
-        }
+    const newCart = {
+        id: cart.length + 1,
+        products: [], //Se crea un carrito nuevo con un array vacío.
+    };
 
-        const existCart = carts.find((cart) => cart.id === data.id);
-        if (existCart) { 
-            console.log("El codigo de producto está en uso");
-            throw new Error( "Error: El codigo está en uso."); 
-        }
-        
-        const newCart = {
-            id: carts.length + 1,
-            product:[]
-        };
-        carts.push(newCart);
+    cart.push(newCart);
 
     try {
-        await fs.promises.writeFile(this.path, JSON.stringify(carts, null, 2), 'utf-8');
-        console.log("Producto agregado satisfactoriamente");
-
-        return newCart;
-        } catch (err) {
+        await fs.promises.writeFile(this.path, JSON.stringify(cart, null, 2), 'utf-8');
+        console.log("Carrito agregado satisfactoriamente");
+    } catch (err) {
         console.log("Error al agregar el carrito:", err);
         throw err;
-        }
+    }
+
+    return newCart;
 }
 
 async updateCart(id, newData) {
@@ -85,16 +74,16 @@ async updateCart(id, newData) {
         }
 
         const productId = newData.productId;
-        const quantity = newData.quantity;
+        const quantity = newData.quantity; // Si no se proporciona la cantidad, establece el valor predeterminado en 1
 
         // Verificar si existe el producto en el carrito
-        const existingProduct = cart.products.findIndex(p => p.productId === productId);
+        const existProduct = cart.products.findIndex(p => p.productId === productId);
 
-        if (existingProduct !== -1) {
-            // Si el producto existe, aumentar la cantidad
-            cart.products[existingProduct].quantity += quantity;
+        if (existProduct !== -1) {
+            // Si el producto existe, actualizar la cantidad
+            cart.products[existProduct].quantity = quantity;
         } else {
-            // Agregar el producto al carrito
+            // Agregar el producto al carrito con la cantidad especificada
             cart.products.push({
                 productId: productId,
                 quantity: quantity
@@ -105,7 +94,8 @@ async updateCart(id, newData) {
     } catch (error) {
         return { error: 'Internal server error' };
     }
-    }
+}
+
 }
 
 module.exports = cartManager

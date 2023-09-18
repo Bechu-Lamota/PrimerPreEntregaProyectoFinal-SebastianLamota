@@ -40,51 +40,42 @@ cartRouter.get('/:cid', async (req, res) => {
     } catch (e) { res.json(e) }
   })
 
+cartRouter.post('/', async (req, res) => {
+    try {
+        const newCart = await cartManager.addCart();
+        return res.status(201).json(newCart);
+    } catch (error) {
+        return res.status(500).json({ error: 'Error al crear el carrito' });
+    }
+})
+
 cartRouter.post('/:cid/product/:pid', async (req, res) => {
-    //En este debería agregar al carrito el producto y para esto debería estar enlazado con productManager
     const cartId = parseInt(req.params.cid);
     const productId = parseInt(req.params.pid);
+    const quantity = req.body.quantity;
     try {
-
-        const cart = await cartManager.getCartById(cartId); //Obtengo el carrito por su ID desde CartManager.
+        const cart = await cartManager.getCartById(cartId);
         if (!cart) {
             return res.status(404).json({ error: 'Cart not found' });
         }
 
-        const product = await productManager.getProductById(productId); //Obtengo el producto por su ID desde ProductManager.
+        const product = await productManager.getProductById(productId);
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        const existProduct = cart.products.findIndex(p => p.productId === productId);
-        if (existProduct !== -1) {
-            cart.products.push({
-                productId: product.id,
-                quantity: 1
-            });
-        }
+        await cartManager.updateCart(cartId, {
+            productId: productId,
+            quantity: quantity // Utiliza la cantidad proporcionada en el cuerpo o 1 si no se proporciona
+        });
 
-        await cartManager.addCart(cartId, { products: cart.products });
-
-        return res.status(201).json(cart);
+        // Devuelve el carrito actualizado
+        const updatedCart = await cartManager.getCartById(cartId);
+        return res.status(201).json(updatedCart);
     } catch (error) {
-        throw res.status(500).json({ error: 'Internal server error'})
-    }
-});
-
-cartRouter.post('/', async (req, res) => {
-    const data = req.body;
-    try {
-        if (!data.product) {
-            return res.status(400).json({ error: 'Faltan datos por completar' });
-          }
-        
-          const newCart = await cartManager.addCart(data);
-          return res.status(201).json(newCart)
-    } catch (error) {
-        console.error("Error interno del servidor:", error);
         return res.status(500).json({ error: 'Internal server error' });
     }
-})
+
+});
 
 module.exports = cartRouter

@@ -54,37 +54,37 @@ async updateCart(id, actualizo) {
     const cart = await this.getCart();
     try {
         // Busco si el carrito existe.
-        const cartExistIndex = cart.findIndex(c => c.id === id);
-        if (cartExistIndex === -1) {
+        const existCart = cart.findIndex(c => c.id === id);
+        if (existCart === -1) {
             console.log("Cart not found");
             return { error: 'Cart not found' }; // Si no existe
         }
         
         // Obtener el carrito existente
-        const cartExist = cart[cartExistIndex];
+        const cartExist = cart[existCart];
         console.log("Found cart:", cartExist);
         
         // Pero si existe el carrito, busco si el producto a agregar existe
         const productId = actualizo.productId;
-        const existingProductIndex = cartExist.products.findIndex(p => p.productId === productId);
+        const existProduct = cartExist.products.findIndex(p => p.productId === productId);
         
-        if (existingProductIndex === -1) { 
+        if (existProduct === -1) { 
             // Si no existe el producto, lo agrego al carrito
             const newProduct = {
                 productId: productId,
                 quantity: actualizo.quantity
             };
             cartExist.products.push(newProduct);
-            console.log("Added new product:", newProduct);
+            console.log("Agregar nuevo producto:", newProduct);
         } else {
             // Si el producto existe en el carrito, actualizo la cantidad
-            cartExist.products[existingProductIndex].quantity += actualizo.quantity;
-            console.log("Updated existing product:", cartExist.products[existingProductIndex]);
+            cartExist.products[existProduct].quantity = actualizo.quantity;
+            console.log("Actualizando producto:", cartExist.products[existProduct]);
         }
         
         // Guardo el carrito actualizado en el archivo
         await this.writeProductsCartToFile(cart);
-        console.log("Cart updated:", cartExist);
+        console.log("Carrito Actualizado:", cartExist);
 
         return "Producto actualizado correctamente";
     } catch (error) { 

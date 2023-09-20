@@ -52,30 +52,23 @@ cartRouter.post('/', async (req, res) => {
 cartRouter.post('/:cid/product/:pid', async (req, res) => {
     const cartId = parseInt(req.params.cid);
     const productId = parseInt(req.params.pid);
-    const quantity = req.body.quantity;
+    const quantity = req.body.quantity || 1;
+
     try {
         const cart = await cartManager.getCartById(cartId);
         if (!cart) {
             return res.status(404).json({ error: 'Cart not found' });
         }
 
-        const product = await productManager.getProductById(productId);
-        if (!product) {
-            return res.status(404).json({ error: 'Product not found' });
-        }
-
-        await cartManager.updateCart(cartId, {
+        const updatedCart = await cartManager.updateCart(cartId, {
             productId: productId,
             quantity: quantity // Utiliza la cantidad proporcionada en el cuerpo o 1 si no se proporciona
         });
 
-        // Devuelve el carrito actualizado
-        const updatedCart = await cartManager.getCartById(cartId);
         return res.status(201).json(updatedCart);
     } catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
     }
-
 });
 
 module.exports = cartRouter

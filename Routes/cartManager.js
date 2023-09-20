@@ -2,21 +2,6 @@ const fs = require('fs')
 
 const ProductManager  = require("./productManager")
 
-//No logro anexar el PRODUCTMANAGER A CARTMANAGER
-/*
-const products = async () => {
-    const manager = new ProductManager("product.json");
-    try {
-        const product = await manager.getProduct();
-        console.log("Product list:", product); // Agregar esta línea para imprimir la lista de productos
-        return product;
-    } catch (error) {
-        console.log("Error al obtener la lista de productos:", error);
-        return [];
-    }
-}
-*/
-
 class cartManager  {
     constructor (path) {
         this.path = path
@@ -65,35 +50,55 @@ async addCart() {
     return newCart;
 }
 
-async updateCart(id, newData) {
+async updateCart(id, actualizo) {
+    const cart = await this.getCart()
     try {
-        // Obtener el carrito por su ID
-        const cart = await this.getCartById(id);
-        if (!cart) {
-            return { error: 'Cart not found' };
+        // Busco si el carrito existe.
+        const cartExist = cart.findIndex(cart => cart.id === id);
+        if (cartExist === -1) {
+            return { error: 'Cart not found' }; // Si no existe
         }
-
-        const productId = newData.productId;
-        const quantity = newData.quantity; // Si no se proporciona la cantidad, establece el valor predeterminado en 1
-
-        // Verificar si existe el producto en el carrito
-        const existProduct = cart.products.findIndex(p => p.productId === productId);
-
-        if (existProduct !== -1) {
-            // Si el producto existe, actualizar la cantidad
-            cart.products[existProduct].quantity = quantity;
-        } else {
-            // Agregar el producto al carrito con la cantidad especificada
-            cart.products.push({
-                productId: productId,
-                quantity: quantity
-            });
+        // Pero si existe el carrito, busco si el producto a agregar existe
+        const productExist = await this.getCartProductById(actualizo.productId);
+        try {
+            const cartProductExist = productExist.findIndex(p => p.productId === actualizo.productId); // Buscamos si el producto que queremos agregar existe
+            if (cartProductExist === -1) { 
+                // Si no existe lo agrego
+                const newProduct = {
+                    productId: actualizo.productId,
+                    quantity: actualizo.quantity
+                }
+                cartProductExist.products.push(newProduct);
+            } else {
+                // Si existe lo actualizo
+                productExist[cartProductExist] = {...productExist[cartProductExist], ...actualizo};
+                await this.writeProductsCartToFile(productExist);
+                return "Producto actualizado correctamente";
+            }
+        } catch (err) { 
+            console.log("Error al actualizar el producto:", err);
         }
-
-        return cart;
-    } catch (error) {
+    } catch (error) { 
         return { error: 'Internal server error' };
     }
+}
+
+    async getCartProductById(productId) {
+        const cart = await this.getCart();
+        const product = cart.products.find(p => p.productId === productId);
+        if (!product) {
+            return { error: 'Cart Product not found' };
+        }
+        return product;
+    }
+
+    async writeProductsCartToFile(products) {
+        try {
+            const pString = JSON.stringify(products, null, 2);
+            await fs.promises.writeFile(this.path, pString);
+        } catch (err) {
+            throw err;
+        } 
 }
 
 }

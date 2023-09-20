@@ -67,7 +67,7 @@ cartRouter.post('/:cid/product/:pid', async (req, res) => {
 
         return res.status(201).json(updatedCart);
     } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Interno error' });
     }
 });
 

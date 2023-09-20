@@ -13,6 +13,14 @@
       {
         "productId": 5,
         "quantity": 20
+      },
+      {
+        "productId": 3,
+        "quantity": 7
+      },
+      {
+        "productId": 4,
+        "quantity": 3
       }
     ]
   },
